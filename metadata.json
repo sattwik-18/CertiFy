@@ -1,0 +1,7 @@
+{
+  "name": "Certify - Blockchain Secured Credentials",
+  "description": "A high-end, Vercel-inspired certification platform for institutions to issue, manage, and verify blockchain-secured documents with military-grade clarity.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
