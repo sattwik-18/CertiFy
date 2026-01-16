@@ -24,9 +24,9 @@ export const Card: React.FC<{ children: React.ReactNode; className?: string; onC
   );
 };
 
-export const Button: React.FC<{ 
-  variant?: 'primary' | 'secondary' | 'ghost'; 
-  children: React.ReactNode; 
+export const Button: React.FC<{
+  variant?: 'primary' | 'secondary' | 'ghost';
+  children: React.ReactNode;
   className?: string;
   onClick?: () => void;
   isLoading?: boolean;
@@ -44,14 +44,14 @@ export const Button: React.FC<{
       onClick={onClick}
       disabled={isLoading}
       className={cn(
-        "relative px-6 py-2.5 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 overflow-hidden",
+        "relative px-6 py-2.5 rounded-full font-medium transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-50 overflow-hidden cursor-pointer",
         variants[variant],
         className
       )}
     >
       {/* Subtle overlay glow layer */}
       <span className="absolute inset-0 opacity-0 hover:opacity-100 transition-opacity duration-500 bg-gradient-to-tr from-white/0 via-white/[0.05] to-white/0 pointer-events-none" />
-      
+
       {isLoading ? (
         <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" />
       ) : (

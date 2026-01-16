@@ -1,0 +1,207 @@
+// Prisma schema for Certify platform
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// User model - represents users within organizations
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String
+  firstName     String?
+  lastName      String?
+  role          String    @default("STAFF")
+  isActive      Boolean   @default(true)
+  emailVerified Boolean   @default(false)
+  emailVerificationToken String?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  twoFactorSecret       String?
+  twoFactorEnabled      Boolean   @default(false)
+  lastLoginAt           DateTime?
+  organizationId        String
+  organization          Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  certificatesIssued Certificate[] @relation("IssuedBy")
+  activityLogs       ActivityLog[]
+
+  @@index([email])
+  @@index([organizationId])
+  @@map("users")
+}
+
+// UserRole enum values: "ADMIN", "STAFF", "VIEWER"
+
+// Organization model - represents institutions/companies issuing certificates
+model Organization {
+  id            String    @id @default(uuid())
+  name          String
+  email         String    @unique
+  domain        String?   @unique
+  logoUrl       String?
+  description   String?
+  isVerified    Boolean   @default(false)
+  verifiedAt    DateTime?
+  isActive      Boolean   @default(true)
+  branding      String?   // Store branding preferences (colors, fonts, etc.) as JSON string
+  settings      String?   // Store organization settings as JSON string
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  users         User[]
+  certificates  Certificate[]
+  templates     Template[]
+  activityLogs  ActivityLog[]
+
+  @@index([email])
+  @@index([domain])
+  @@map("organizations")
+}
+
+// Template model - certificate templates
+model Template {
+  id            String    @id @default(uuid())
+  name          String
+  description   String?
+  organizationId String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  design        String    // Template design configuration (layout, fields, styling) as JSON string
+  isDefault     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  certificates  Certificate[]
+
+  @@index([organizationId])
+  @@map("templates")
+}
+
+// Certificate model - the main certificate entity
+model Certificate {
+  id                String            @id @default(uuid())
+  certificateId     String            @unique // Human-readable ID like CRT-1234-X
+  recipientName     String
+  recipientEmail    String
+  courseTitle       String
+  courseDescription String?
+  issueDate         DateTime
+  expiryDate        DateTime?
+  status            String            @default("VALID")
+  
+  // Organization & Issuer
+  organizationId    String
+  organization      Organization      @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  issuerId          String
+  issuer            User              @relation("IssuedBy", fields: [issuerId], references: [id])
+  templateId        String?
+  template          Template?         @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  
+  // Blockchain data
+  blockchainHash    String            @unique
+  transactionId     String            @unique
+  blockNumber       String?
+  blockchainNetwork String            @default("ethereum")
+  blockchainExplorerUrl String?
+  
+  // Files
+  certificatePdfUrl String?
+  qrCodeUrl         String?
+  
+  // Metadata
+  metadata          String?           // Additional certificate data as JSON string
+  revocationReason  String?
+  revokedAt         DateTime?
+  revokedBy         String?
+  
+  // Verification
+  verificationUrl   String            @unique
+  publicKey         String?           // For advanced verification
+  
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  // Relations
+  verificationLogs  VerificationLog[]
+  blockchainRecords BlockchainRecord[]
+
+  @@index([certificateId])
+  @@index([recipientEmail])
+  @@index([organizationId])
+  @@index([status])
+  @@index([blockchainHash])
+  @@index([transactionId])
+  @@map("certificates")
+}
+
+// CertificateStatus enum values: "VALID", "REVOKED", "EXPIRED", "PENDING"
+
+// Blockchain Record - tracks blockchain transactions
+model BlockchainRecord {
+  id                String   @id @default(uuid())
+  certificateId     String
+  certificate       Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  transactionHash   String   @unique
+  blockNumber       String?
+  blockHash         String?
+  gasUsed           String?
+  gasPrice          String?
+  network           String   @default("ethereum")
+  status            String   @default("pending") // pending, confirmed, failed
+  confirmationCount Int      @default(0)
+  createdAt         DateTime @default(now())
+  confirmedAt       DateTime?
+
+  @@index([certificateId])
+  @@index([transactionHash])
+  @@map("blockchain_records")
+}
+
+// Verification Log - tracks public verification requests
+model VerificationLog {
+  id            String   @id @default(uuid())
+  certificateId String
+  certificate   Certificate @relation(fields: [certificateId], references: [id], onDelete: Cascade)
+  ipAddress     String?
+  userAgent     String?
+  verified      Boolean  @default(true)
+  verificationMethod String @default("web") // web, qr, api
+  createdAt     DateTime @default(now())
+
+  @@index([certificateId])
+  @@index([createdAt])
+  @@map("verification_logs")
+}
+
+// Activity Log - tracks organization/user activities
+model ActivityLog {
+  id            String   @id @default(uuid())
+  organizationId String?
+  organization  Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  userId        String?
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action        String   // e.g., "CERTIFICATE_ISSUED", "CERTIFICATE_REVOKED", "USER_CREATED"
+  entityType    String?  // e.g., "certificate", "user", "organization"
+  entityId      String?
+  description   String?
+  metadata      String?   // Metadata as JSON string
+  ipAddress     String?
+  createdAt     DateTime @default(now())
+
+  @@index([organizationId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("activity_logs")
+}
+
