@@ -78,6 +78,20 @@ function AppContent() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [dashboardTab, setDashboardTab] = useState('Overview');
 
+  // Dropdown Click Outside
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [dropdownRef]);
+
   // Toast Helpers
   const addToast = (title: string, type: ToastType = 'success', message?: string) => {
     const id = Math.random().toString(36).substr(2, 9);
@@ -157,10 +171,6 @@ function AppContent() {
           </div>
 
           <div className="hidden md:flex items-center gap-8">
-            <button className="text-sm font-medium text-white/60 hover:text-white transition-colors">Products</button>
-            <button className="text-sm font-medium text-white/60 hover:text-white transition-colors">Enterprise</button>
-            <button className="text-sm font-medium text-white/60 hover:text-white transition-colors">Pricing</button>
-            <div className="h-4 w-[1px] bg-white/10 mx-2" />
             <Button variant="ghost" className="text-sm" onClick={() => navigate('VERIFY')}>Verify Contract</Button>
             {user ? (
               <Button variant="primary" className="text-sm px-8" onClick={() => navigate('DASHBOARD')}>Dashboard</Button>
@@ -168,7 +178,7 @@ function AppContent() {
               <Button variant="primary" className="text-sm px-8" onClick={() => navigate('AUTH')}>Sign In</Button>
             )}
             {user && (
-              <div className="relative ml-4">
+              <div className="relative ml-4" ref={dropdownRef}>
                 <button
                   onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                   className="w-10 h-10 rounded-full bg-white/10 hover:bg-brand/20 border border-white/5 flex items-center justify-center transition-all overflow-hidden"
@@ -179,11 +189,11 @@ function AppContent() {
                 <AnimatePresence>
                   {isDropdownOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                      initial={{ opacity: 0, y: 10, scale: 0.95, x: '-50%' }}
+                      animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+                      exit={{ opacity: 0, y: 10, scale: 0.95, x: '-50%' }}
                       transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-14 w-56 p-2 rounded-xl glass border border-white/5 shadow-2xl z-50 bg-black/90"
+                      className="absolute left-1/2 top-14 w-56 p-2 rounded-xl glass border border-white/5 shadow-2xl z-50 bg-black/90"
                     >
                       <div className="px-3 py-2 border-b border-white/5 mb-2">
                         <div className="text-sm font-bold truncate text-white">{profile?.name || 'User'}</div>

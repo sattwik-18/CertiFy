@@ -9,7 +9,6 @@ import {
   Cpu,
   Fingerprint,
   CheckCircle2,
-  Database,
   Lock,
   Globe,
   Key,
@@ -105,12 +104,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onStart, onVerify }) =
         {/* --- NEW SECTION 1: WHY CHOOSE US --- */}
         <SectionWrapper className="mb-32">
           <SectionHeader title="Why Choose CertiFy" subtitle="The Future of Contract Security" />
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <FeatureCard
-              icon={<Database className="text-brand" />}
-              title="Decentralized Storage"
-              desc="Data is distributed across a secure global node network, preventing single points of failure."
-            />
+          <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-6">
             <FeatureCard
               icon={<Lock className="text-brand" />}
               title="Military-Grade Encryption"
