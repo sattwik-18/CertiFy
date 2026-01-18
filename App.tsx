@@ -38,9 +38,11 @@ import {
   X,
   Download,
   Copy,
-  ScanLine
+  ScanLine,
+  BrainCircuit
 } from 'lucide-react';
 import { BackgroundEffects } from './components/BackgroundEffects';
+import { AIAnalysisView } from './src/components/AIAnalysisView';
 import { Button, Card, Badge, cn } from './components/UI';
 import { MainAreaChart, SecurityGauge } from './components/DashboardCharts';
 import { AppView, Certificate, CertificateStatus } from './types';
@@ -388,6 +390,7 @@ const DashboardView: React.FC<{
       case 'Create Contract': return <IssueNewTab addToast={addToast} />;
       case 'Contracts': return <RegistryTab certificates={certificates} addToast={addToast} />; // Pass addToast
       case 'Verification': return <VerificationTab events={events} />;
+      case 'AI Analysis': return <AIAnalysisView />;
       case 'Security': return <SecurityTab />;
       case 'Settings': return <SettingsTab />;
       default: return <OverviewTab certificates={certificates} events={events} />;
@@ -421,6 +424,7 @@ const DashboardView: React.FC<{
               { label: 'Create Contract', icon: PlusCircle },
               { label: 'Contracts', icon: Database },
               { label: 'Verification', icon: ShieldCheck },
+              { label: 'AI Analysis', icon: BrainCircuit },
               { label: 'Security', icon: Lock },
               { label: 'Settings', icon: Settings },
             ].map((item) => (
