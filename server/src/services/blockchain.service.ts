@@ -45,7 +45,7 @@ class BlockchainService {
     certificateId: string
   ): Promise<BlockchainTransaction> {
     const hash = '0x' + this.generateHash(certificateData);
-    
+
     if (config.blockchain.useMock) {
       return this.mockBlockchainTransaction(hash);
     } else {
@@ -87,7 +87,7 @@ class BlockchainService {
     // TODO: Implement real blockchain integration
     // This would use ethers.js, web3.js, or similar library
     // to interact with Ethereum, Polygon, or other networks
-    
+
     throw new Error('Real blockchain integration not implemented yet');
   }
 

@@ -52,6 +52,7 @@ import { profilesService, UserProfile } from './src/services/supabase/profiles';
 import { certificatesService, CertificateRow } from './src/services/supabase/certificates';
 import { useRealtimeVerifications } from './src/hooks/useRealtimeVerifications';
 import { Html5QrcodeScanner, Html5Qrcode } from "html5-qrcode";
+import { LandingPage } from './components/landing/LandingPage';
 
 export default function App() {
   return (
@@ -231,7 +232,7 @@ function AppContent() {
 
       <main className="pt-20">
         <AnimatePresence mode="wait">
-          {view === 'LANDING' && <LandingView onStart={() => navigate(user ? 'DASHBOARD' : 'AUTH')} onVerify={() => navigate('VERIFY')} />}
+          {view === 'LANDING' && <LandingPage onStart={() => navigate(user ? 'DASHBOARD' : 'AUTH')} onVerify={() => navigate('VERIFY')} />}
           {view === 'AUTH' && <AuthView />}
           {view === 'DASHBOARD' && user && (
             <DashboardView
@@ -268,72 +269,7 @@ function AppContent() {
   );
 }
 
-const LandingView: React.FC<{ onStart: () => void, onVerify: () => void }> = ({ onStart, onVerify }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -20 }}
-    className="max-w-7xl mx-auto px-6 pt-24 pb-32"
-  >
-    <div className="text-center space-y-8">
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-brand/10 border border-brand/20 text-brand text-xs font-bold tracking-widest uppercase"
-      >
-        <Zap size={14} /> Powered by AI & Secure Contract Ledger
-      </motion.div>
 
-      <h1 className="text-6xl md:text-8xl font-bold tracking-tighter leading-[1.1]">
-        Draft & Verify <br />
-        <span className="bg-gradient-to-b from-white to-white/50 bg-clip-text text-transparent">Blockchain-Secured</span> <br />
-        Contracts
-      </h1>
-
-      <p className="max-w-2xl mx-auto text-lg text-white/50 leading-relaxed font-light">
-        The easiest way to draft, manage, and verify contracts for institutions, governments, and
-        enterprise. Secure. Permanent. Universally verifiable in one click.
-      </p>
-
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
-        <Button variant="primary" className="px-10 py-4 text-lg h-14" onClick={onStart}>
-          Get Started <ArrowRight size={20} />
-        </Button>
-        <Button variant="secondary" className="px-10 py-4 text-lg h-14" onClick={onVerify}>
-          Verify Contract
-        </Button>
-      </div>
-
-      <div className="pt-32 grid md:grid-cols-3 gap-8 text-left">
-        <Card className="p-8">
-          <Hexagon className="text-brand mb-6" size={40} />
-          <h3 className="text-xl font-bold mb-3">Immutable Record</h3>
-          <p className="text-white/50 text-sm leading-relaxed">
-            Contracts are hashed and stored on-chain, ensuring they can never be forged,
-            altered, or deleted.
-          </p>
-        </Card>
-        <Card className="p-8">
-          <Cpu className="text-brand mb-6" size={40} />
-          <h3 className="text-xl font-bold mb-3">API-First Design</h3>
-          <p className="text-white/50 text-sm leading-relaxed">
-            Seamlessly integrate contract lifecycle management into your existing systems
-            with our robust SDKs.
-          </p>
-        </Card>
-        <Card className="p-8">
-          <Fingerprint className="text-brand mb-6" size={40} />
-          <h3 className="text-xl font-bold mb-3">Permanent Trust</h3>
-          <p className="text-white/50 text-sm leading-relaxed">
-            Verify any contract instantly without login. Build trust with your stakeholders
-            through cryptographic proof.
-          </p>
-        </Card>
-      </div>
-    </div>
-  </motion.div>
-);
 
 const AuthView: React.FC = () => {
   const { signInWithGoogle } = useAuth();
